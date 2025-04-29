@@ -1,5 +1,10 @@
 basePath: /api/v1
 definitions:
+  models.ErrorResponse:
+    properties:
+      reason:
+        type: string
+    type: object
   models.LaporPajak:
     properties:
       id:
@@ -15,6 +20,21 @@ definitions:
       wajib_pajak_id:
         type: integer
     type: object
+  models.RegisterUserRequest:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      password_confirmation:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
   models.User:
     properties:
       created_at:
@@ -23,9 +43,16 @@ definitions:
         type: string
       id:
         type: integer
+      password:
+        type: string
       updated_at:
         type: string
       username:
+        type: string
+    type: object
+  models.VoidResponse:
+    properties:
+      message:
         type: string
     type: object
   models.WajibPajak:
@@ -65,14 +92,22 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.User'
+          $ref: '#/definitions/models.RegisterUserRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.VoidResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Register new user
       tags:
       - auth

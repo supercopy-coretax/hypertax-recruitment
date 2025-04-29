@@ -43,7 +43,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.RegisterUserRequest"
                         }
                     }
                 ],
@@ -51,7 +51,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.VoidResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -91,7 +103,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/login": {
+        "/login": {
             "post": {
                 "description": "Authenticate user and return token",
                 "consumes": [
@@ -128,7 +140,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/logout": {
+        "/logout": {
             "post": {
                 "description": "Invalidate user token",
                 "consumes": [
@@ -182,6 +194,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
         "models.LaporPajak": {
             "type": "object",
             "properties": {
@@ -205,6 +225,29 @@ const docTemplate = `{
                 }
             }
         },
+        "models.RegisterUserRequest": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "password_confirmation": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "models.User": {
             "type": "object",
             "properties": {
@@ -217,10 +260,21 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "password": {
+                    "type": "string"
+                },
                 "updated_at": {
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.VoidResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }
