@@ -1,0 +1,125 @@
+basePath: /api/v1
+definitions:
+  models.LaporPajak:
+    properties:
+      id:
+        type: integer
+      jenis_pajak:
+        type: string
+      periode:
+        type: string
+      tanggal_lapor:
+        type: string
+      total_pajak:
+        type: number
+      wajib_pajak_id:
+        type: integer
+    type: object
+  models.User:
+    properties:
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+  models.WajibPajak:
+    properties:
+      alamat:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      nama:
+        type: string
+      npwp:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Indonesian Tax Web Application API
+  title: CoreTax API
+  version: "1.0"
+paths:
+  /lapor:
+    post:
+      consumes:
+      - application/json
+      description: Submit a new tax report
+      parameters:
+      - description: Tax Report
+        in: body
+        name: report
+        required: true
+        schema:
+          $ref: '#/definitions/models.LaporPajak'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.LaporPajak'
+      summary: Submit tax report
+      tags:
+      - lapor
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return token
+      parameters:
+      - description: User credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - auth
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: Invalidate user token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout user
+      tags:
+      - auth
+  /wajibpajak:
+    get:
+      consumes:
+      - application/json
+      description: Get all registered tax payers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.WajibPajak'
+            type: array
+      summary: Get list of tax payers
+      tags:
+      - wajibpajak
+swagger: "2.0"
