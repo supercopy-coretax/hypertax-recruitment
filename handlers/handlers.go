@@ -56,3 +56,15 @@ func (h *Handler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	// Implementation
 }
+
+// @Summary Register new user
+// @Description Register a new user account
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body models.User true "User Registration Details"
+// @Success 201 {object} models.User
+// @Router /auth/register [post]
+func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
+	// Implementation
+}

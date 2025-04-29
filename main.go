@@ -56,6 +56,7 @@ func main() {
 
 	api.HandleFunc("/auth/login", handler.HandleLogin).Methods("POST")
 	api.HandleFunc("/auth/logout", handler.HandleLogout).Methods("POST")
+	api.HandleFunc("/auth/register", handler.HandleRegister).Methods("POST")
 
 	api.HandleFunc("/wajibpajak", handler.GetWajibPajak).Methods("GET")
 	api.HandleFunc("/lapor", handler.HandleLapor).Methods("POST")

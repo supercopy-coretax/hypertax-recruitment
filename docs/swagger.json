@@ -1,17 +1,56 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Indonesian Tax Web Application API",
+        "description": "Indonesian Tax API",
         "title": "Hypertax API",
         "contact": {
-            "name": "Hypertax Support",
-            "url": "https://hypertax.id/support"
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
         },
-        "version": "1.0"
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.0"
     },
     "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
+        "/auth/register": {
+            "post": {
+                "description": "Register a new user account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Register new user",
+                "parameters": [
+                    {
+                        "description": "User Registration Details",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            }
+        },
         "/lapor": {
             "post": {
                 "description": "Submit a new tax report",

@@ -37,11 +37,39 @@ definitions:
     type: object
 host: localhost:8080
 info:
-  contact: {}
-  description: Indonesian Tax Web Application API
-  title: CoreTax API
-  version: "1.0"
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Indonesian Tax API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Hypertax API
+  version: 1.0.0
 paths:
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account
+      parameters:
+      - description: User Registration Details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Register new user
+      tags:
+      - auth
   /lapor:
     post:
       consumes:
