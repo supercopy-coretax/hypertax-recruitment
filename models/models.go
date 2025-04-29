@@ -20,7 +20,28 @@ type LaporPajak struct {
 }
 
 type User struct {
-	ID       int    `json:"id"`
+	ID        int       `json:"id"`
+	Username  string    `json:"username"`
+	Password  string    `json:"password"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type RegisterUserRequest struct {
+	Username             string    `json:"username"`
+	Password             string    `json:"password"`
+	PasswordConfirmation string    `json:"password_confirmation"`
+	Email                string    `json:"email"`
+	CreatedAt            time.Time `json:"created_at"`
+	UpdatedAt            time.Time `json:"updated_at"`
+}
+
+type LoginUserRequest struct {
 	Username string `json:"username"`
-	Password string `json:"-"`
+	Password string `json:"password"`
+}
+
+type VoidResponse struct {
+	Message string `json:"message"`
 }
