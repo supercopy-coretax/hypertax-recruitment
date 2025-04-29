@@ -7,11 +7,12 @@ import (
 )
 
 type Env struct {
-	DBHost string `mapstructure:"DB_HOST"`
-	DBPort string `mapstructure:"DB_PORT"`
-	DBUser string `mapstructure:"DB_USER"`
-	DBPass string `mapstructure:"DB_PASS"`
-	DBName string `mapstructure:"DB_NAME"`
+	DBHost     string `mapstructure:"DB_HOST"`
+	DBPort     string `mapstructure:"DB_PORT"`
+	DBUser     string `mapstructure:"DB_USER"`
+	DBPass     string `mapstructure:"DB_PASS"`
+	DBName     string `mapstructure:"DB_NAME"`
+	JWT_SECRET string `mapstructure:"JWT_SECRET"`
 }
 
 func NewEnv() *Env {

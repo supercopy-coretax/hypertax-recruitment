@@ -48,7 +48,7 @@ func main() {
 		log.Fatal("Failed to ping database:", err)
 	}
 
-	handler := handlers.NewHandler(pool)
+	handler := handlers.NewHandler(pool, env)
 
 	r := mux.NewRouter()
 
