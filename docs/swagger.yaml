@@ -20,6 +20,22 @@ definitions:
       wajib_pajak_id:
         type: integer
     type: object
+  models.LoginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.User'
+      message:
+        type: string
+      token:
+        type: string
+    type: object
+  models.LoginUserRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
   models.RegisterUserRequest:
     properties:
       created_at:
@@ -43,8 +59,6 @@ definitions:
         type: string
       id:
         type: integer
-      password:
-        type: string
       updated_at:
         type: string
       username:
@@ -81,6 +95,57 @@ info:
   title: Hypertax API
   version: 1.0.0
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return token
+      parameters:
+      - description: User credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Invalidate user token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout user
+      tags:
+      - auth
   /auth/register:
     post:
       consumes:
@@ -133,47 +198,6 @@ paths:
       summary: Submit tax report
       tags:
       - lapor
-  /login:
-    post:
-      consumes:
-      - application/json
-      description: Authenticate user and return token
-      parameters:
-      - description: User credentials
-        in: body
-        name: credentials
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Login user
-      tags:
-      - auth
-  /logout:
-    post:
-      consumes:
-      - application/json
-      description: Invalidate user token
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Logout user
-      tags:
-      - auth
   /wajibpajak:
     get:
       consumes:
