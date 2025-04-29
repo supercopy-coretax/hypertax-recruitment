@@ -11,6 +11,7 @@ import (
 	_ "github.com/supercopy-coretax/hypertax-backend/docs"
 	"github.com/supercopy-coretax/hypertax-backend/handlers"
 	"github.com/supercopy-coretax/hypertax-backend/models"
+	"github.com/supercopy-coretax/hypertax-backend/pkg"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
@@ -27,6 +28,7 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @BasePath /api/v1
+// @securityDefinitions.basic BasicAuth
 func main() {
 	env := models.NewEnv()
 
@@ -51,17 +53,21 @@ func main() {
 	handler := handlers.NewHandler(pool, env)
 
 	r := mux.NewRouter()
-
 	api := r.PathPrefix("/api/v1").Subrouter()
 
-	api.HandleFunc("/auth/login", handler.HandleLogin).Methods("POST")
+	authRouter := api.PathPrefix("/auth").Subrouter()
+	authRouter.Use(pkg.BasicAuthMiddleware)
+	authRouter.HandleFunc("/login", handler.HandleLogin).Methods("POST")
+	authRouter.HandleFunc("/register", handler.HandleRegister).Methods("POST")
+
+	apiClose := api.PathPrefix("").Subrouter()
+	apiClose.Use(pkg.JWTMiddleware)
+
 	api.HandleFunc("/auth/logout", handler.HandleLogout).Methods("POST")
-	api.HandleFunc("/auth/register", handler.HandleRegister).Methods("POST")
+	apiClose.HandleFunc("/wajibpajak", handler.GetWajibPajak).Methods("GET")
+	apiClose.HandleFunc("/lapor", handler.HandleLapor).Methods("POST")
 
-	api.HandleFunc("/wajibpajak", handler.GetWajibPajak).Methods("GET")
-	api.HandleFunc("/lapor", handler.HandleLapor).Methods("POST")
-
-	r.PathPrefix("/swagger").Handler(httpSwagger.Handler(
+	r.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
 	))
 
