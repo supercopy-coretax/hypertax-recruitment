@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/supercopy-coretax/hypertax-backend/models"
 	"golang.org/x/crypto/bcrypt"
@@ -15,11 +16,13 @@ import (
 
 type Handler struct {
 	dbPool *pgxpool.Pool
+	env    *models.Env
 }
 
-func NewHandler(dbPool *pgxpool.Pool) *Handler {
+func NewHandler(dbPool *pgxpool.Pool, env *models.Env) *Handler {
 	return &Handler{
 		dbPool: dbPool,
+		env:    env,
 	}
 }
 
@@ -51,11 +54,70 @@ func (h *Handler) HandleLapor(w http.ResponseWriter, r *http.Request) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param credentials body models.User true "User credentials"
-// @Success 200 {object} map[string]string
-// @Router /login [post]
+// @Param credentials body models.LoginUserRequest true "User credentials"
+// @Success 200 {object} models.LoginResponse
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /auth/login [post]
 func (h *Handler) HandleLogin(w http.ResponseWriter, r *http.Request) {
-	// Implementation
+	var loginRequest models.LoginUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&loginRequest); err != nil {
+		h.sendError(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if loginRequest.Username == "" || loginRequest.Password == "" {
+		h.sendError(w, "Username and password are required", http.StatusBadRequest)
+		return
+	}
+
+	query := `
+		SELECT id, username, email, password
+		FROM users
+		WHERE username = $1`
+
+	var user models.User
+	var hashedPassword string
+
+	err := h.dbPool.QueryRow(
+		r.Context(),
+		query,
+		loginRequest.Username,
+	).Scan(&user.ID, &user.Username, &user.Email, &hashedPassword)
+
+	if err != nil {
+		h.sendError(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(loginRequest.Password))
+	if err != nil {
+		h.sendError(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": user.Username,
+		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte(h.env.JWT_SECRET))
+
+	if err != nil {
+		h.sendError(w, "Error signing token", http.StatusInternalServerError)
+		return
+	}
+
+	response := models.LoginResponse{
+		Message: "Login successful",
+		Data:    user,
+		Token:   tokenString,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }
 
 // @Summary Logout user
@@ -64,7 +126,7 @@ func (h *Handler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]string
-// @Router /logout [post]
+// @Router /auth/logout [post]
 func (h *Handler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	// Implementation
 }
