@@ -202,8 +202,17 @@
         "models.User": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
                 },
                 "username": {
                     "type": "string"

@@ -23,7 +23,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/register": {
+        "/auth/register": {
             "post": {
                 "description": "Register a new user account",
                 "consumes": [
@@ -91,7 +91,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/login": {
+        "/auth/login": {
             "post": {
                 "description": "Authenticate user and return token",
                 "consumes": [
@@ -128,7 +128,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/logout": {
+        "/auth/logout": {
             "post": {
                 "description": "Invalidate user token",
                 "consumes": [
@@ -182,7 +182,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "LaporPajak": {
+        "models.LaporPajak": {
             "type": "object",
             "properties": {
                 "id": {
@@ -205,18 +205,27 @@ const docTemplate = `{
                 }
             }
         },
-        "User": {
+        "models.User": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
                 },
                 "username": {
                     "type": "string"
                 }
             }
         },
-        "WajibPajak": {
+        "models.WajibPajak": {
             "type": "object",
             "properties": {
                 "alamat": {
