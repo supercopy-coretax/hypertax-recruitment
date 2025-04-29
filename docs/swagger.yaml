@@ -126,6 +126,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BasicAuth: []
       summary: Login user
       tags:
       - auth
@@ -173,6 +175,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BasicAuth: []
       summary: Register new user
       tags:
       - auth
@@ -215,4 +219,7 @@ paths:
       summary: Get list of tax payers
       tags:
       - wajibpajak
+securityDefinitions:
+  BasicAuth:
+    type: basic
 swagger: "2.0"

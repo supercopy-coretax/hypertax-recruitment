@@ -19,6 +19,11 @@
     "paths": {
         "/auth/login": {
             "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Authenticate user and return token",
                 "consumes": [
                     "application/json"
@@ -97,6 +102,11 @@
         },
         "/auth/register": {
             "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Register a new user account",
                 "consumes": [
                     "application/json"
@@ -329,6 +339,11 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
         }
     }
 }

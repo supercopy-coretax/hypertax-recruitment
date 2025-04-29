@@ -59,6 +59,7 @@ func (h *Handler) HandleLapor(w http.ResponseWriter, r *http.Request) {
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
+// @Security BasicAuth
 // @Router /auth/login [post]
 func (h *Handler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	var loginRequest models.LoginUserRequest
@@ -140,6 +141,7 @@ func (h *Handler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 // @Success 201 {object} models.VoidResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
+// @Security BasicAuth
 // @Router /auth/register [post]
 func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	var user models.RegisterUserRequest
