@@ -142,9 +142,17 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.VoidResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Logout user
       tags:
       - auth
@@ -220,6 +228,12 @@ paths:
       tags:
       - wajibpajak
 securityDefinitions:
+  ApiKeyAuth:
+    description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization:
+      Bearer {token}"'
+    in: header
+    name: AUthorization
+    type: apiKey
   BasicAuth:
     type: basic
 swagger: "2.0"

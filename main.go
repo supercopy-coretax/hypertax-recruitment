@@ -29,6 +29,10 @@ import (
 
 // @BasePath /api/v1
 // @securityDefinitions.basic BasicAuth
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name AUthorization
+// @description JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"
 func main() {
 	env := models.NewEnv()
 

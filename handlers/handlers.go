@@ -126,10 +126,21 @@ func (h *Handler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]string
+// @Success 200 {object} models.VoidResponse
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Security ApiKeyAuth
 // @Router /auth/logout [post]
 func (h *Handler) HandleLogout(w http.ResponseWriter, r *http.Request) {
-	// Implementation
+	// Invalidate the token by removing it from the client side
+	// This is a placeholder as JWTs are stateless and do not require server-side invalidation
+	response := models.VoidResponse{
+		Message: "Logout successful",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }
 
 // @Summary Register new user
