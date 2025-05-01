@@ -173,6 +173,11 @@ const docTemplate = `{
         },
         "/lapor": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Submit a new tax report",
                 "consumes": [
                     "application/json"
@@ -191,7 +196,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.LaporPajak"
+                            "$ref": "#/definitions/models.LaporPajakRequest"
                         }
                     }
                 ],
@@ -199,7 +204,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.LaporPajak"
+                            "$ref": "#/definitions/models.VoidResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -241,7 +258,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.LaporPajak": {
+        "models.LaporPajakRequest": {
             "type": "object",
             "properties": {
                 "id": {
@@ -292,16 +309,38 @@ const docTemplate = `{
         "models.RegisterUserRequest": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },
+                "date_of_birth": {
+                    "description": "Format: YYYY-MM-DD",
+                    "type": "string"
+                },
                 "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "npwp": {
                     "type": "string"
                 },
                 "password": {
                     "type": "string"
                 },
                 "password_confirmation": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "profile_picture_url": {
                     "type": "string"
                 },
                 "updated_at": {
@@ -315,14 +354,35 @@ const docTemplate = `{
         "models.User": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "created_at": {
+                    "type": "string"
+                },
+                "date_of_birth": {
                     "type": "string"
                 },
                 "email": {
                     "type": "string"
                 },
+                "first_name": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "npwp": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "profile_picture_url": {
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"

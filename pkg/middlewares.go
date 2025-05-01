@@ -8,14 +8,25 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/spf13/viper"
 	"github.com/supercopy-coretax/hypertax-backend/models"
 )
+
+var env *models.Env
+
+func SetEnv(e *models.Env) {
+	env = e
+}
 
 type contextKey string
 
 func JWTMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if env == nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(models.NewErrorResponse("Server configuration error"))
+			return
+		}
 
 		authorizationHeader := r.Header.Get("Authorization")
 		if !strings.Contains(authorizationHeader, "Bearer") {
@@ -34,7 +45,7 @@ func JWTMiddleware(next http.Handler) http.Handler {
 				return nil, fmt.Errorf("signing method invalid")
 			}
 
-			return []byte(viper.GetString("JWT_SECRET")), nil
+			return []byte(env.JWT_SECRET), nil
 		}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 
 		if err != nil {
@@ -61,10 +72,16 @@ func JWTMiddleware(next http.Handler) http.Handler {
 
 func BasicAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if env == nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(models.NewErrorResponse("Server configuration error"))
+			return
+		}
+
 		if strings.Contains(r.URL.Path, "/auth/login") || strings.Contains(r.URL.Path, "/auth/register") {
 			username, password, ok := r.BasicAuth()
-			fmt.Printf("username: %s, password: %s, ok: %v\n", username, password, ok)
-			if !ok || username != viper.GetString("BASIC_AUTH_USERNAME") || password != viper.GetString("BASIC_AUTH_PASSWORD") {
+			if !ok || username != env.BASIC_AUTH_USERNAME || password != env.BASIC_AUTH_PASSWORD {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusUnauthorized)
 				json.NewEncoder(w).Encode(models.NewErrorResponse("Unauthorized"))

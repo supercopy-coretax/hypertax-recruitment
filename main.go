@@ -56,6 +56,8 @@ func main() {
 
 	handler := handlers.NewHandler(pool, env)
 
+	pkg.SetEnv(env)
+
 	r := mux.NewRouter()
 	api := r.PathPrefix("/api/v1").Subrouter()
 
