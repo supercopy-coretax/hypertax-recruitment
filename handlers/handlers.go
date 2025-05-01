@@ -42,8 +42,11 @@ func (h *Handler) GetWajibPajak(w http.ResponseWriter, r *http.Request) {
 // @Tags lapor
 // @Accept json
 // @Produce json
-// @Param report body models.LaporPajak true "Tax Report"
-// @Success 201 {object} models.LaporPajak
+// @Param report body models.LaporPajakRequest true "Tax Report"
+// @Success 201 {object} models.VoidResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Security ApiKeyAuth
 // @Router /lapor [post]
 func (h *Handler) HandleLapor(w http.ResponseWriter, r *http.Request) {
 	// Implementation
@@ -74,18 +77,40 @@ func (h *Handler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := `
-		SELECT id, username, email, password
+		SELECT id, username, email, password, npwp, phone_number, 
+		       address, first_name, last_name, date_of_birth, 
+		       profile_picture_url, created_at, updated_at
 		FROM users
 		WHERE username = $1`
 
 	var user models.User
 	var hashedPassword string
+	var dateOfBirth *time.Time
 
 	err := h.dbPool.QueryRow(
 		r.Context(),
 		query,
 		loginRequest.Username,
-	).Scan(&user.ID, &user.Username, &user.Email, &hashedPassword)
+	).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&hashedPassword,
+		&user.NPWP,
+		&user.PhoneNumber,
+		&user.Address,
+		&user.FirstName,
+		&user.LastName,
+		&dateOfBirth,
+		&user.ProfilePictureURL,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	// Convert date_of_birth to string format if not nil
+	if dateOfBirth != nil {
+		user.DateOfBirth = dateOfBirth.Format("2006-01-02")
+	}
 
 	if err != nil {
 		h.sendError(w, "Invalid username or password", http.StatusUnauthorized)
@@ -183,9 +208,24 @@ func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	user.UpdatedAt = now
 
 	query := `
-		INSERT INTO users (username, password, email, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO users (
+			username, password, email, npwp, phone_number, 
+			address, first_name, last_name, date_of_birth, 
+			profile_picture_url, created_at, updated_at
+		)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 		RETURNING username`
+
+	// Parse date of birth if provided
+	var dateOfBirth *time.Time
+	if user.DateOfBirth != "" {
+		parsedDate, err := time.Parse("2006-01-02", user.DateOfBirth)
+		if err != nil {
+			h.sendError(w, "Invalid date format for date_of_birth. Use YYYY-MM-DD format", http.StatusBadRequest)
+			return
+		}
+		dateOfBirth = &parsedDate
+	}
 
 	err = h.dbPool.QueryRow(
 		r.Context(),
@@ -193,6 +233,13 @@ func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 		user.Username,
 		hashedPassword,
 		user.Email,
+		user.NPWP,
+		user.PhoneNumber,
+		user.Address,
+		user.FirstName,
+		user.LastName,
+		dateOfBirth,
+		user.ProfilePictureURL,
 		user.CreatedAt,
 		user.UpdatedAt,
 	).Scan(&user.Username)
@@ -205,6 +252,14 @@ func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 			}
 			if strings.Contains(err.Error(), "users_email_key") {
 				h.sendError(w, "Email already exists", http.StatusConflict)
+				return
+			}
+			if strings.Contains(err.Error(), "users_npwp_key") {
+				h.sendError(w, "NPWP already exists", http.StatusConflict)
+				return
+			}
+			if strings.Contains(err.Error(), "users_phone_number_key") {
+				h.sendError(w, "Phone number already exists", http.StatusConflict)
 				return
 			}
 		}
