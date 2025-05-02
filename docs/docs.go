@@ -196,7 +196,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.LaporPajakRequest"
+                            "$ref": "#/definitions/models.TaxReportRequest"
                         }
                     }
                 ],
@@ -260,29 +260,6 @@ const docTemplate = `{
             "properties": {
                 "reason": {
                     "type": "string"
-                }
-            }
-        },
-        "models.LaporPajakRequest": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "jenis_pajak": {
-                    "type": "string"
-                },
-                "periode": {
-                    "type": "string"
-                },
-                "tanggal_lapor": {
-                    "type": "string"
-                },
-                "total_pajak": {
-                    "type": "number"
-                },
-                "wajib_pajak_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -353,6 +330,23 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "models.TaxReportRequest": {
+            "type": "object",
+            "properties": {
+                "tax_amount": {
+                    "type": "number"
+                },
+                "tax_category": {
+                    "type": "string"
+                },
+                "tax_period": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },

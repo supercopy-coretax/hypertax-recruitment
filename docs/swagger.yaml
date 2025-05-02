@@ -5,21 +5,6 @@ definitions:
       reason:
         type: string
     type: object
-  models.LaporPajakRequest:
-    properties:
-      id:
-        type: integer
-      jenis_pajak:
-        type: string
-      periode:
-        type: string
-      tanggal_lapor:
-        type: string
-      total_pajak:
-        type: number
-      wajib_pajak_id:
-        type: integer
-    type: object
   models.LoginResponse:
     properties:
       data:
@@ -65,6 +50,17 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  models.TaxReportRequest:
+    properties:
+      tax_amount:
+        type: number
+      tax_category:
+        type: string
+      tax_period:
+        type: integer
+      user_id:
+        type: integer
     type: object
   models.User:
     properties:
@@ -228,7 +224,7 @@ paths:
         name: report
         required: true
         schema:
-          $ref: '#/definitions/models.LaporPajakRequest'
+          $ref: '#/definitions/models.TaxReportRequest'
       produces:
       - application/json
       responses:
