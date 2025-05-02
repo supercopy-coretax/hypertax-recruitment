@@ -10,6 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/supercopy-coretax/hypertax-backend/models"
+	"github.com/supercopy-coretax/hypertax-backend/pkg"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -42,14 +43,104 @@ func (h *Handler) GetWajibPajak(w http.ResponseWriter, r *http.Request) {
 // @Tags lapor
 // @Accept json
 // @Produce json
-// @Param report body models.LaporPajakRequest true "Tax Report"
+// @Param report body models.TaxReportRequest true "Tax Report"
 // @Success 201 {object} models.VoidResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Security BearerAuth
 // @Router /lapor [post]
 func (h *Handler) HandleLapor(w http.ResponseWriter, r *http.Request) {
-	// Implementation
+
+	var report models.TaxReportRequest
+	if err := json.NewDecoder(r.Body).Decode(&report); err != nil {
+		h.sendError(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if report.TaxCategory == "" {
+		h.sendError(w, "Tax category is required", http.StatusBadRequest)
+		return
+	}
+	if report.TaxPeriod <= 0 {
+		h.sendError(w, "Invalid tax period", http.StatusBadRequest)
+		return
+	}
+
+	if report.TaxAmout < 0 {
+		h.sendError(w, "Invalid tax amount", http.StatusBadRequest)
+		return
+	}
+
+	validCategories := []string{"OP", "HB", "PH", "MT", "WBT"}
+	isValidCategory := false
+	for _, category := range validCategories {
+		if report.TaxCategory == category {
+			isValidCategory = true
+			break
+		}
+	}
+	if !isValidCategory {
+		h.sendError(w, "Invalid tax category. Must be one of: OP, HB, PH, MT, WBT", http.StatusBadRequest)
+		return
+	}
+
+	username, ok := r.Context().Value(pkg.ContextKey("username")).(string)
+	if !ok {
+		h.sendError(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	var userID int
+	err := h.dbPool.QueryRow(r.Context(), "SELECT id FROM users WHERE username = $1", username).Scan(&userID)
+	if err != nil {
+		h.sendError(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	now := time.Now()
+
+	// Insert tax report using prepared statement
+	query := `
+		INSERT INTO tax_reports (
+			user_id, tax_amount, status, tax_period, 
+			tax_category, created_at, updated_at
+		)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING id`
+
+	var reportID int
+	err = h.dbPool.QueryRow(
+		r.Context(),
+		query,
+		userID,
+		report.TaxAmout,
+		"pending",
+		report.TaxPeriod,
+		report.TaxCategory,
+		now,
+		now,
+	).Scan(&reportID)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "violates foreign key constraint") {
+			h.sendError(w, "Invalid user ID", http.StatusBadRequest)
+			return
+		}
+		if strings.Contains(err.Error(), "invalid input value for enum tax_category_enum") {
+			h.sendError(w, "Invalid tax category", http.StatusBadRequest)
+			return
+		}
+		h.sendError(w, "Error submitting tax report", http.StatusInternalServerError)
+		return
+	}
+
+	response := models.VoidResponse{
+		Message: fmt.Sprintf("Tax report submitted successfully with ID: %d", reportID),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
 }
 
 // @Summary Login user

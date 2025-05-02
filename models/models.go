@@ -11,11 +11,8 @@ type WajibPajak struct {
 }
 
 type TaxReportRequest struct {
-	ID          int     `json:"id"`
-	UserId      int     `json:"uesr_id"`
+	UserId      int     `json:"user_id"`
 	TaxCategory string  `json:"tax_category"`
-	Period      string  `json:"period"`
-	Status      string  `json:"status"`
 	TaxAmout    float64 `json:"tax_amount"`
 	TaxPeriod   int     `json:"tax_period"`
 }

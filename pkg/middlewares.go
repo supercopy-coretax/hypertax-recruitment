@@ -17,7 +17,7 @@ func SetEnv(e *models.Env) {
 	env = e
 }
 
-type contextKey string
+type ContextKey string
 
 func JWTMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +63,7 @@ func JWTMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), contextKey("username"), claims["username"])
+		ctx := context.WithValue(r.Context(), ContextKey("username"), claims["username"])
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
