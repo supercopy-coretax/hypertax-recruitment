@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -264,8 +263,6 @@ func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		// Log the actual error for debugging
-		log.Printf("Registration error: %v", err)
 		h.sendError(w, "Error creating user", http.StatusInternalServerError)
 		return
 	}
@@ -279,7 +276,6 @@ func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// Add this helper method to Handler struct
 func (h *Handler) sendError(w http.ResponseWriter, message string, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

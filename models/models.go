@@ -10,13 +10,14 @@ type WajibPajak struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-type LaporPajakRequest struct {
-	ID           int       `json:"id"`
-	WajibPajakID int       `json:"wajib_pajak_id"`
-	JenisPajak   string    `json:"jenis_pajak"`
-	Periode      string    `json:"periode"`
-	TotalPajak   float64   `json:"total_pajak"`
-	TanggalLapor time.Time `json:"tanggal_lapor"`
+type TaxReportRequest struct {
+	ID          int     `json:"id"`
+	UserId      int     `json:"uesr_id"`
+	TaxCategory string  `json:"tax_category"`
+	Period      string  `json:"period"`
+	Status      string  `json:"status"`
+	TaxAmout    float64 `json:"tax_amount"`
+	TaxPeriod   int     `json:"tax_period"`
 }
 
 type User struct {
