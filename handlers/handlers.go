@@ -27,15 +27,144 @@ func NewHandler(dbPool *pgxpool.Pool, env *models.Env) *Handler {
 }
 
 // @Summary Get list of tax payers
-// @Description Get all registered tax payers
+// @Description Get all registered tax payers with optional filtering
 // @Tags wajibpajak
 // @Accept json
 // @Produce json
-// @Success 200 {array} models.WajibPajak
+// @Param search query string false "Search by name, email, phone or NPWP"
+// @Param start_date query string false "Filter by tax payment start date (YYYY-MM-DD)"
+// @Param end_date query string false "Filter by tax payment end date (YYYY-MM-DD)"
+// @Success 200 {array} models.TaxPayersResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Security BearerAuth
 // @Router /wajibpajak [get]
 func (h *Handler) GetWajibPajak(w http.ResponseWriter, r *http.Request) {
-	// Implementation
+	search := r.URL.Query().Get("search")
+	startDate := r.URL.Query().Get("start_date")
+	endDate := r.URL.Query().Get("end_date")
+
+	query := `
+		WITH tax_data AS (
+			SELECT 
+				u.id,
+				u.npwp,
+				u.first_name,
+				u.last_name,
+				u.date_of_birth,
+				u.profile_picture_url,
+				u.address,
+				u.phone_number,
+				u.email,
+				u.created_at,
+				COALESCE(json_agg(
+					json_build_object(
+						'tax_category', tr.tax_category,
+						'tax_amount', tr.tax_amount,
+						'tax_period', tr.tax_period
+					)
+				) FILTER (WHERE tr.id IS NOT NULL), '[]') as tax_reports
+			FROM users u
+			LEFT JOIN tax_reports tr ON u.id = tr.user_id
+			WHERE 1=1`
+
+	var conditions []string
+	var args []interface{}
+	argCount := 1
+
+	if search != "" {
+		searchCond := fmt.Sprintf(`
+			AND (
+				LOWER(u.first_name) LIKE LOWER($%d) OR
+				LOWER(u.last_name) LIKE LOWER($%d) OR
+				LOWER(u.email) LIKE LOWER($%d) OR
+				u.phone_number LIKE $%d OR
+				u.npwp LIKE $%d
+			)`, argCount, argCount, argCount, argCount, argCount)
+		conditions = append(conditions, searchCond)
+		args = append(args, "%"+search+"%")
+		argCount++
+	}
+
+	if startDate != "" {
+		_, err := time.Parse("2006-01-02", startDate)
+		if err != nil {
+			h.sendError(w, "Invalid start_date format. Use YYYY-MM-DD", http.StatusBadRequest)
+			return
+		}
+		conditions = append(conditions, fmt.Sprintf("AND tr.created_at >= $%d", argCount))
+		args = append(args, startDate)
+		argCount++
+	}
+
+	if endDate != "" {
+		_, err := time.Parse("2006-01-02", endDate)
+		if err != nil {
+			h.sendError(w, "Invalid end_date format. Use YYYY-MM-DD", http.StatusBadRequest)
+			return
+		}
+		conditions = append(conditions, fmt.Sprintf("AND tr.created_at <= $%d", argCount))
+		args = append(args, endDate)
+		argCount++
+	}
+
+	for _, condition := range conditions {
+		query += condition
+	}
+
+	query += `
+		GROUP BY u.id
+		)
+		SELECT * FROM tax_data
+		ORDER BY created_at DESC`
+
+	rows, err := h.dbPool.Query(r.Context(), query, args...)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		h.sendError(w, "Error fetching tax payers", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var taxpayers []models.TaxPayersResponse
+	for rows.Next() {
+		var tp models.TaxPayersResponse
+		var dateOfBirth *time.Time
+		var taxReportsJSON []byte
+
+		err := rows.Scan(
+			&tp.ID,
+			&tp.NPWP,
+			&tp.FirstName,
+			&tp.LastName,
+			&dateOfBirth,
+			&tp.ProfilePictureURL,
+			&tp.Address,
+			&tp.Phone,
+			&tp.Email,
+			&tp.CreatedAt,
+			&taxReportsJSON,
+		)
+		if err != nil {
+			h.sendError(w, "Error scanning tax payer data", http.StatusInternalServerError)
+			return
+		}
+
+		if dateOfBirth != nil {
+			tp.DateOfBirth = dateOfBirth.Format("2006-01-02")
+		}
+
+		if err := json.Unmarshal(taxReportsJSON, &tp.TaxReports); err != nil {
+			h.sendError(w, "Error parsing tax reports", http.StatusInternalServerError)
+			return
+		}
+
+		taxpayers = append(taxpayers, tp)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(taxpayers)
 }
 
 // @Summary Submit tax report
