@@ -84,7 +84,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Invalidate user token",
@@ -175,7 +175,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Submit a new tax report",
@@ -224,6 +224,11 @@ const docTemplate = `{
         },
         "/wajibpajak": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all registered tax payers",
                 "consumes": [
                     "application/json"
@@ -422,14 +427,14 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
-            "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-            "type": "apiKey",
-            "name": "AUthorization",
-            "in": "header"
-        },
         "BasicAuth": {
             "type": "basic"
+        },
+        "BearerAuth": {
+            "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

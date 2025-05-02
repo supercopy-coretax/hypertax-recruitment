@@ -32,6 +32,7 @@ func NewHandler(dbPool *pgxpool.Pool, env *models.Env) *Handler {
 // @Accept json
 // @Produce json
 // @Success 200 {array} models.WajibPajak
+// @Security BearerAuth
 // @Router /wajibpajak [get]
 func (h *Handler) GetWajibPajak(w http.ResponseWriter, r *http.Request) {
 	// Implementation
@@ -46,7 +47,7 @@ func (h *Handler) GetWajibPajak(w http.ResponseWriter, r *http.Request) {
 // @Success 201 {object} models.VoidResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Router /lapor [post]
 func (h *Handler) HandleLapor(w http.ResponseWriter, r *http.Request) {
 	// Implementation
@@ -154,7 +155,7 @@ func (h *Handler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} models.VoidResponse
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Router /auth/logout [post]
 func (h *Handler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	// Invalidate the token by removing it from the client side

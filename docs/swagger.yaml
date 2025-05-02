@@ -181,7 +181,7 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Logout user
       tags:
       - auth
@@ -245,7 +245,7 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Submit tax report
       tags:
       - lapor
@@ -263,16 +263,18 @@ paths:
             items:
               $ref: '#/definitions/models.WajibPajak'
             type: array
+      security:
+      - BearerAuth: []
       summary: Get list of tax payers
       tags:
       - wajibpajak
 securityDefinitions:
-  ApiKeyAuth:
+  BasicAuth:
+    type: basic
+  BearerAuth:
     description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization:
       Bearer {token}"'
     in: header
-    name: AUthorization
+    name: Authorization
     type: apiKey
-  BasicAuth:
-    type: basic
 swagger: "2.0"

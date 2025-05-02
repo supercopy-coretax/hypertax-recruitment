@@ -29,9 +29,9 @@ import (
 
 // @BasePath /api/v1
 // @securityDefinitions.basic BasicAuth
-// @securityDefinitions.apikey ApiKeyAuth
+// @securityDefinitions.apikey BearerAuth
 // @in header
-// @name AUthorization
+// @name Authorization
 // @description JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"
 func main() {
 	env := models.NewEnv()
@@ -66,12 +66,11 @@ func main() {
 	authRouter.HandleFunc("/login", handler.HandleLogin).Methods("POST")
 	authRouter.HandleFunc("/register", handler.HandleRegister).Methods("POST")
 
-	apiClose := api.PathPrefix("").Subrouter()
-	apiClose.Use(pkg.JWTMiddleware)
-
-	api.HandleFunc("/auth/logout", handler.HandleLogout).Methods("POST")
-	apiClose.HandleFunc("/wajibpajak", handler.GetWajibPajak).Methods("GET")
-	apiClose.HandleFunc("/lapor", handler.HandleLapor).Methods("POST")
+	protectedRouter := api.PathPrefix("").Subrouter()
+	protectedRouter.Use(pkg.JWTMiddleware)
+	protectedRouter.HandleFunc("/auth/logout", handler.HandleLogout).Methods("POST")
+	protectedRouter.HandleFunc("/wajibpajak", handler.GetWajibPajak).Methods("GET")
+	protectedRouter.HandleFunc("/lapor", handler.HandleLapor).Methods("POST")
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
