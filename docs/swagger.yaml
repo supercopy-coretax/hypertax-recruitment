@@ -51,6 +51,33 @@ definitions:
       username:
         type: string
     type: object
+  models.TaxPayersResponse:
+    properties:
+      address:
+        type: string
+      created_at:
+        type: string
+      date_of_birth:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      npwp:
+        type: string
+      phone:
+        type: string
+      profile_picture_url:
+        type: string
+      tax_reports:
+        items:
+          $ref: '#/definitions/models.TaxReportResponse'
+        type: array
+    type: object
   models.TaxReportRequest:
     properties:
       tax_amount:
@@ -60,6 +87,15 @@ definitions:
       tax_period:
         type: integer
       user_id:
+        type: integer
+    type: object
+  models.TaxReportResponse:
+    properties:
+      tax_amount:
+        type: number
+      tax_category:
+        type: string
+      tax_period:
         type: integer
     type: object
   models.User:
@@ -92,19 +128,6 @@ definitions:
   models.VoidResponse:
     properties:
       message:
-        type: string
-    type: object
-  models.WajibPajak:
-    properties:
-      alamat:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: integer
-      nama:
-        type: string
-      npwp:
         type: string
     type: object
 host: localhost:8080
@@ -249,7 +272,20 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get all registered tax payers
+      description: Get all registered tax payers with optional filtering
+      parameters:
+      - description: Search by name, email, phone or NPWP
+        in: query
+        name: search
+        type: string
+      - description: Filter by tax payment start date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: Filter by tax payment end date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        type: string
       produces:
       - application/json
       responses:
@@ -257,8 +293,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.WajibPajak'
+              $ref: '#/definitions/models.TaxPayersResponse'
             type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get list of tax payers

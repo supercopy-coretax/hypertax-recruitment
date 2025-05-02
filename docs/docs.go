@@ -229,7 +229,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get all registered tax payers",
+                "description": "Get all registered tax payers with optional filtering",
                 "consumes": [
                     "application/json"
                 ],
@@ -240,14 +240,46 @@ const docTemplate = `{
                     "wajibpajak"
                 ],
                 "summary": "Get list of tax payers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search by name, email, phone or NPWP",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by tax payment start date (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by tax payment end date (YYYY-MM-DD)",
+                        "name": "end_date",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.WajibPajak"
+                                "$ref": "#/definitions/models.TaxPayersResponse"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -333,6 +365,47 @@ const docTemplate = `{
                 }
             }
         },
+        "models.TaxPayersResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "date_of_birth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "npwp": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "profile_picture_url": {
+                    "type": "string"
+                },
+                "tax_reports": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.TaxReportResponse"
+                    }
+                }
+            }
+        },
         "models.TaxReportRequest": {
             "type": "object",
             "properties": {
@@ -346,6 +419,20 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.TaxReportResponse": {
+            "type": "object",
+            "properties": {
+                "tax_amount": {
+                    "type": "number"
+                },
+                "tax_category": {
+                    "type": "string"
+                },
+                "tax_period": {
                     "type": "integer"
                 }
             }
@@ -395,26 +482,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.WajibPajak": {
-            "type": "object",
-            "properties": {
-                "alamat": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "nama": {
-                    "type": "string"
-                },
-                "npwp": {
                     "type": "string"
                 }
             }
