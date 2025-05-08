@@ -128,7 +128,7 @@ func (h *Handler) GetWajibPajak(w http.ResponseWriter, r *http.Request) {
 
 	var taxpayers []models.TaxPayersResponse
 	for rows.Next() {
-		var tp models.TaxPayersResponse
+		var tp models.TaxPayersEntity
 		var dateOfBirth *time.Time
 		var taxReportsJSON []byte
 
@@ -159,7 +159,21 @@ func (h *Handler) GetWajibPajak(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		taxpayers = append(taxpayers, tp)
+		mappedTp := models.TaxPayersResponse{
+			ID:                tp.ID,
+			NPWP:              tp.NPWP,
+			FirstName:         tp.FirstName,
+			LastName:          tp.LastName,
+			DateOfBirth:       tp.DateOfBirth,
+			ProfilePictureURL: tp.ProfilePictureURL.String,
+			Address:           tp.Address.String,
+			Phone:             tp.Phone,
+			Email:             tp.Email,
+			CreatedAt:         tp.CreatedAt,
+			TaxReports:        tp.TaxReports,
+		}
+
+		taxpayers = append(taxpayers, mappedTp)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

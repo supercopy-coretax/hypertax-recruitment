@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type TaxPayersResponse struct {
 	ID                int                 `json:"id"`
@@ -14,6 +17,20 @@ type TaxPayersResponse struct {
 	Email             string              `json:"email"`
 	TaxReports        []TaxReportResponse `json:"tax_reports"`
 	CreatedAt         time.Time           `json:"created_at"`
+}
+
+type TaxPayersEntity struct {
+	ID                int
+	NPWP              string
+	FirstName         string
+	LastName          string
+	DateOfBirth       string
+	ProfilePictureURL sql.NullString
+	Address           sql.NullString
+	Phone             string
+	Email             string
+	TaxReports        []TaxReportResponse
+	CreatedAt         time.Time
 }
 
 type TaxReportResponse struct {
